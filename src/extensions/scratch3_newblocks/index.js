@@ -2,6 +2,7 @@ const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const log = require('../../util/log');
+const axios = require('axios');
 // const nets = require('nets');
 
 class Scratch3NewBlocks {
@@ -37,7 +38,7 @@ class Scratch3NewBlocks {
                     }
                 },
                 {
-                    opcode: 'ajaxRequest',
+                    opcode: 'send_joke',
                     blockType: BlockType.REPORTER,
                     text: 'JOKE',
                 },
@@ -87,89 +88,24 @@ class Scratch3NewBlocks {
     getBrowser () {
         return navigator.userAgent;
     }
-    ajaxRequest () {
-        // この2行はできた
-        // var test = this.getBrowser();
-        // return test;
-    }
-    // api呼び出し処理
-    promise_JsonData(url) {
-      var xhr = new XMLHttpRequest();
-      return new Promise(resolve => {
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-              // HTTPステータスが成功（200 OK）の場合
-              var jsonData = JSON.parse(xhr.responseText);
-              // resolve(jsonData.setup + "\n" + jsonData.punchline);
-              resolve(jsonData);
-            } else {
-              // エラーハンドリング
-              console.error("データの取得中にエラーが発生しました。ステータスコード: " + xhr.status);
-              resolve("error");
-            }
-          }
-        };
-        xhr.open("GET", url, true);
-        xhr.send();
-      }
-    )}
-    // apiの呼び出し
-    async my_Async(api_url) {
-        // const result = await this.promise_JsonData('https://official-joke-api.appspot.com/jokes/random');
-        // const result = await this.promise_JsonData('http://127.0.0.1:8000/items/tintin');
-        const result = await this.promise_JsonData(api_url);
-        return result;
+    // Get Api response
+
+    async get_json(api_url){
+        const json = await axios.get(api_url);
+        return json.data;
     }
 
-    async ajaxRequest () {
-        //👇スクラッチブロックからでもasync関数が呼び出せるようになる
-        const result = await this.my_Async('http://127.0.0.1:8000/items/tintin');
-        return result.item_id;
+    async send_joke () {
+        const result = await this.get_json('https://official-joke-api.appspot.com/jokes/random');
+        log.log(result)
+        return result;
     }
 
     async send_line_notify (args) {
         const text = Cast.toString(args.TEXT);
-        log.log(text);
-        const result = await this.my_Async(`http://127.0.0.1:8000/items/${text}`);
+        const result = await this.get_json(`http://127.0.0.1:8000/items/${text}`);
         return result.item_id;
     }
 
 }
-// ajaxRequestを呼び出してsetupを取得し、それをログに出力します
-//    ajaxRequest(function (setup) {
-//      if (setup) {
-//        console.log("取得したsetup: ", setup);
-//      } else {
-//        console.error("エラーが発生しました。");
-//    }
-//    });
-//    ajaxRequest (){
-//        function fetchJsonData(url, callback) {
-//          var xhr = new XMLHttpRequest();
-//          xhr.onreadystatechange = function () {
-//                if (xhr.readyState === 4) {
-//                      if (xhr.status === 200) {
-//                            // HTTPステータスが成功（200 OK）の場合
-//                            var jsonData = JSON.parse(xhr.responseText);
-//                            callback(jsonData); // コールバック関数にJSONデータを渡す
-//                      } else {
-//                            // エラーハンドリング
-//                            console.error("データの取得中にエラーが発生しました。ステータスコード: " + xhr.status);
-//                            callback(null); // エラー時にはnullを渡すか、適切なエラーハンドリングを行う
-//                      }
-//                }
-//            };
-//              xhr.open("GET", url, true);
-//              xhr.send();
-//        }
-//        var apiURL = "https://official-joke-api.appspot.com/jokes/random";
-//        var AAAAA =  fetchJsonData(apiURL, function(jsonData){
-//                log.log(jsonData);
-//                return jsonData.setup;
-//        });
-//        // return "AAAAA";
-//        return new AAAAA;
-//    }
-//}
 module.exports = Scratch3NewBlocks;
