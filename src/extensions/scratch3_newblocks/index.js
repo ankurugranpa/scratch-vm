@@ -27,26 +27,34 @@ class Scratch3NewBlocks {
                     }
                 },
                 {
-                    opcode: 'test',
+                    opcode: 'post_test',
                     blockType: BlockType.COMMAND,
-                    text: 'log [TEXT]と[TINTIN]',
+                    text: 'post [NAME][DESCRIPTION][PRICE][TAX]',
                     arguments: {
-                        TEXT: {
+                        NAME: {
                             type: ArgumentType.STRING,
-                            defaultValue: "log"
+                            defaultValue: "TEST"
                         },
-                        TINTIN: {
+                        DESCRIPTION: {
                             type: ArgumentType.STRING,
-                            defaultValue: "tintin"
+                            defaultValue: "post test"
+                        },
+                        PRICE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 45.34
+                        },
+                        TAX: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 4
                         }
                     }
                 },
                 {
-                    opcode: 'send_line_notify',
+                    opcode: 'send_line_message',
                     blockType: BlockType.COMMAND,
-                    text: 'LINE_messege[TEXT]',
+                    text: 'SEND_LINE[MESSGAGE]',
                     arguments: {
-                        TEXT: {
+                        MESSGAGE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'これはテストメッセージ'
                         }
@@ -99,6 +107,28 @@ class Scratch3NewBlocks {
         const text = Cast.toString(args.TEXT);
         log.log(text);
     }
+    send_line_message(args){
+        const message = {
+              message: Cast.toString(args.MESSGAGE)
+        };
+        axios.post('http://127.0.0.1:8000/send_line/', message)
+            .then(response => {
+                log.log(response);
+            });
+    }
+
+    post_test(args){
+        const data = {
+              name: Cast.toString(args.NAME),
+              description: Cast.toString(args.DESCRIPTION),
+              price: Cast.toNumber(args.PRICE),
+              tax: Cast.toNumber(args.TAX)
+        };
+        axios.post('http://127.0.0.1:8000/items/', data)
+            .then(response => {
+                log.log(response);
+            });
+    }
 
     getBrowser () {
         return navigator.userAgent;
@@ -116,7 +146,7 @@ class Scratch3NewBlocks {
     async send_joke () {
         const result = await this.get_json('https://official-joke-api.appspot.com/jokes/random');
         // log.log(result)
-        return result.setup;
+        return result.setup + "\n" + result.punchline;
     }
 
     async send_line_notify (args) {
