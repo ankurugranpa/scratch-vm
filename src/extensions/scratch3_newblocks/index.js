@@ -92,13 +92,16 @@ class Scratch3NewBlocks {
 
     async get_json(api_url){
         const json = await axios.get(api_url);
+        // var test = JSON.stringify(json.data)
+        // log.log(typeof test)
+        // log.log(test.setup)
         return json.data;
     }
 
     async send_joke () {
         const result = await this.get_json('https://official-joke-api.appspot.com/jokes/random');
-        log.log(result)
-        return result;
+        // log.log(result)
+        return result.setup;
     }
 
     async send_line_notify (args) {
