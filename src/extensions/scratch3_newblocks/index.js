@@ -27,6 +27,21 @@ class Scratch3NewBlocks {
                     }
                 },
                 {
+                    opcode: 'test',
+                    blockType: BlockType.COMMAND,
+                    text: 'log [TEXT]と[TINTIN]',
+                    arguments: {
+                        TEXT: {
+                            type: ArgumentType.STRING,
+                            defaultValue: "log"
+                        },
+                        TINTIN: {
+                            type: ArgumentType.STRING,
+                            defaultValue: "tintin"
+                        }
+                    }
+                },
+                {
                     opcode: 'send_line_notify',
                     blockType: BlockType.COMMAND,
                     text: 'LINE_messege[TEXT]',
