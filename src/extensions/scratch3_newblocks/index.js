@@ -3,7 +3,21 @@ const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const log = require('../../util/log');
 const axios = require('axios');
-// const nets = require('nets');
+
+var http = require('http')
+
+// http.createServer(function(req, res) {
+//   if(req.method === 'POST') {
+//     var data = '';
+//     req.on('data', function(chunk) {data += chunk})
+//         .on('end', function() {
+//             console.log(data);
+//             console.log(req.url);
+//             res.writeHead(200, {'Content-Type': 'text/json'});
+//             res.end("ok");
+//         })
+//      }
+//   });
 
 class Scratch3NewBlocks {
     constructor (runtime) {
@@ -74,7 +88,17 @@ class Scratch3NewBlocks {
                     opcode: 'testAsync',
                     text: 'Async/Await tester',
                     blockType: BlockType.COMMAND
-                }
+                },
+      //          {
+      //              opcode: 'webhooktest',
+      //              text: 'test',
+      //              blockType: BlockType.HAT
+      //          },
+//                {
+//                    opcode: 'posttttest',
+//                    text: 'Async/Await tester',
+//                    blockType: BlockType.COMMAND
+//                },
             ],
             menus: {
             }
@@ -82,6 +106,38 @@ class Scratch3NewBlocks {
     }
 
     //👇await出来るようにPromiseの関数を定義
+
+//    posttttest() {
+//        app.post('/webhook', (req, res) => {
+//            // Webhookデータを処理するコードをここに追加
+//            console.log('Webhook受信成功');
+//            res.sendStatus(200);
+//        });
+//
+//        app.listen(port, () => {
+//          console.log(`サーバーがポート${port}で起動しました。`);
+//        });
+//    }
+
+    //webhooktest() {
+    //    app.post('/webhook', (req, res) => {
+    //        // Webhookデータを処理するコードをここに追加
+    //        console.log('Webhook受信成功');
+    //        res.sendStatus(200);
+    //    });
+
+    //    app.listen(port, () => {
+    //      console.log(`サーバーがポート${port}で起動しました。`);
+    //    });
+    //}
+        // return log.log("test")
+        //this.myFirstAsync().then(result => {
+        //    console.log(result);
+        //});
+        //return 0
+
+            // setTimeout(() => {}, 10000);
+    //}
     myFirstPromise(message) {
         console.log('一秒遅延しています...');
         return new Promise(resolve => {
