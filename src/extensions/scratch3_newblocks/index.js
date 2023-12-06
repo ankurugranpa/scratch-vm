@@ -6,19 +6,6 @@ const axios = require('axios');
 
 var http = require('http')
 
-// http.createServer(function(req, res) {
-//   if(req.method === 'POST') {
-//     var data = '';
-//     req.on('data', function(chunk) {data += chunk})
-//         .on('end', function() {
-//             console.log(data);
-//             console.log(req.url);
-//             res.writeHead(200, {'Content-Type': 'text/json'});
-//             res.end("ok");
-//         })
-//      }
-//   });
-
 class Scratch3NewBlocks {
     constructor (runtime) {
         this.runtime = runtime;
@@ -89,55 +76,12 @@ class Scratch3NewBlocks {
                     text: 'Async/Await tester',
                     blockType: BlockType.COMMAND
                 },
-      //          {
-      //              opcode: 'webhooktest',
-      //              text: 'test',
-      //              blockType: BlockType.HAT
-      //          },
-//                {
-//                    opcode: 'posttttest',
-//                    text: 'Async/Await tester',
-//                    blockType: BlockType.COMMAND
-//                },
             ],
             menus: {
             }
         };
     }
 
-    //👇await出来るようにPromiseの関数を定義
-
-//    posttttest() {
-//        app.post('/webhook', (req, res) => {
-//            // Webhookデータを処理するコードをここに追加
-//            console.log('Webhook受信成功');
-//            res.sendStatus(200);
-//        });
-//
-//        app.listen(port, () => {
-//          console.log(`サーバーがポート${port}で起動しました。`);
-//        });
-//    }
-
-    //webhooktest() {
-    //    app.post('/webhook', (req, res) => {
-    //        // Webhookデータを処理するコードをここに追加
-    //        console.log('Webhook受信成功');
-    //        res.sendStatus(200);
-    //    });
-
-    //    app.listen(port, () => {
-    //      console.log(`サーバーがポート${port}で起動しました。`);
-    //    });
-    //}
-        // return log.log("test")
-        //this.myFirstAsync().then(result => {
-        //    console.log(result);
-        //});
-        //return 0
-
-            // setTimeout(() => {}, 10000);
-    //}
     myFirstPromise(message) {
         console.log('一秒遅延しています...');
         return new Promise(resolve => {
@@ -165,12 +109,21 @@ class Scratch3NewBlocks {
     }
     send_line_message(args){
         const message = {
-              message: Cast.toString(args.MESSGAGE)
+            message: Cast.toString(args.MESSGAGE)
         };
         axios.post('http://127.0.0.1:8000/send_line/', message)
             .then(response => {
                 log.log(response);
             });
+    }
+
+
+    async get_json(api_url){
+        const json = await axios.get(api_url);
+        // var test = JSON.stringify(json.data)
+        // log.log(typeof test)
+        // log.log(test.setup)
+        return json.data;
     }
 
     post_test(args){
