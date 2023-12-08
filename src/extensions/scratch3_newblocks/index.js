@@ -5,6 +5,7 @@ const log = require('../../util/log');
 const axios = require('axios');
 
 var http = require('http')
+var test_message = null
 
 class Scratch3NewBlocks {
     constructor (runtime) {
@@ -53,13 +54,36 @@ class Scratch3NewBlocks {
                 {
                     opcode: 'send_line_message',
                     blockType: BlockType.COMMAND,
-                    text: 'SEND_LINE[MESSGAGE]',
+                    text: 'SEND_LINE[MESSGAGE][USERID]',
                     arguments: {
                         MESSGAGE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'これはテストメッセージ'
+                        },
+                        USERID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'USERID'
                         }
                     }
+                },
+                {
+                    opcode: 'get_message',
+                    blockType: BlockType.BOOLEAN,
+                    text: 'GetMessage[USERID]',
+                    arguments: {
+                        USERID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'メッセージを受け取りたいユーザーのidを入力してください'
+                        },
+                        MESSAGE:{
+                            type: ArgumentType.STRING,
+                        }
+                    }
+                },
+                {
+                    opcode: 'message_index',
+                    blockType: BlockType.REPORTER,
+                    text: 'Message',
                 },
                 {
                     opcode: 'send_joke',
@@ -109,9 +133,10 @@ class Scratch3NewBlocks {
     }
     send_line_message(args){
         const message = {
-            message: Cast.toString(args.MESSGAGE)
+            message: Cast.toString(args.MESSGAGE),
+            user_id: Cast.toString(args.USERID)
         };
-        axios.post('http://127.0.0.1:8000/send_line/', message)
+        axios.post(' https://jaguar-curious-conversely.ngrok-free.app/send_line/', message)
             .then(response => {
                 log.log(response);
             });
@@ -158,11 +183,71 @@ class Scratch3NewBlocks {
         return result.setup + "\n" + result.punchline;
     }
 
+
     async send_line_notify (args) {
         const text = Cast.toString(args.TEXT);
         const result = await this.get_json(`http://127.0.0.1:8000/items/${text}`);
         return result.item_id;
     }
+    // async get_message_post(data){
+    //     const response =  await axios.post('https://5977-216-171-126-102.ngrok-free.app/line-db/get', data, {
+    //     headers: {
+    //     'accept': 'application/json',
+    //     'Content-Type': 'application/json'
+    //         }
+    //     });
+    //     return response.data
+    // }
+    // async get_message(args){
+    //     const data = {
+    //         user_id: "test"
+    //     };
+    //     const json = await this.get_message_post(data)
+    //     // return json.content
+    //     log.log(json)
+    //     return json.response
+    // }
+    async get_message_post(user_id) {
+    try {
+        const data = {
+            user_id: user_id
+        };
+        const response = await axios.post('https://5977-216-171-126-102.ngrok-free.app/line-db/get', data, {
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data
+    } catch (error) {
+        console.error("Error in get_message_post:", error);
+        // エラーのハンドリングを追加する（例: デフォルトのエラーメッセージを返すなど）
+        throw error;
+    }
+    }
+
+    message_index(){
+        return test_message
+    }
+
+    async get_message(args) {
+        const message = await this.get_message_post(Cast.toString(args.USERID))
+        // log.log(message.message)
+        if (message.length === 0) {
+            return 0
+        }
+        else {
+            for (let i = 0; i < message.length; i++){
+                test_message = message[i].message
+            }
+            return 1
+        }
+
+
+        // return message.message
+    }
+
+
 
 }
 module.exports = Scratch3NewBlocks;
