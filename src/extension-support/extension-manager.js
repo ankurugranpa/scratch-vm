@@ -26,7 +26,8 @@ const builtinExtensions = {
     gdxfor: () => require('../extensions/scratch3_gdx_for'),
     newblocks: () => require('../extensions/scratch3_newblocks'),
     chatgpt: () => require('../extensions/scratch3_chatgpt'),
-    line: () => require('../extensions/scratch3_line')
+    line: () => require('../extensions/scratch3_line'),
+    voicevox: () => require('../extensions/scratch3_voicevox')
 };
 
 /**
