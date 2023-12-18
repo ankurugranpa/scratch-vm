@@ -6,10 +6,13 @@ const Cast = require('../../util/cast');
 const log = require('../../util/log');
 const fetchWithTimeout = require('../../util/fetch-with-timeout');
 const Clone = require('../../util/clone');
-const base64 = require('../../util/base64-util');
 
 const axios = require('axios');
-const { arrayBufferToBase64 } = require('../../util/base64-util');
+const { arrayBufferToBase64, base64ToUint8Array } = require('../../util/base64-util');
+const Base64Util = require('../../util/base64-util');
+const Base64toArrayBuffer = require('../../util/original-util/base64-2-bufarray');
+const { buffer } = require('js-md5');
+
 
 const SERVER_HOST = "http://localhost:50021";
 const SERVER_TIMEOUT = 10000; // 10 seconds
@@ -94,7 +97,7 @@ class Scratch3VoiceVox {
                 {
                     opcode: 'voice_data',
                     blockType: BlockType.REPORTER,
-                    text: 'Voice_Data[TEXT][SPEAKER][STYLE]',
+                    text: 'Voiceデータ[TEXT][SPEAKER][STYLE]',
                     arguments: {
                         TEXT: {
                             type: ArgumentType.STRING,
@@ -107,6 +110,17 @@ class Scratch3VoiceVox {
                         STYLE: {
                             type: ArgumentType.NUMBER,
                             defaultValue: 1
+                        },
+                    }
+                },
+                {
+                    opcode: 'play_voice',
+                    blockType: BlockType.COMMAND,
+                    text: '音声データの再生[SOURCE]',
+                    arguments: {
+                        SOURCE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '音声データ'
                         },
                     }
                 },
@@ -138,10 +152,11 @@ class Scratch3VoiceVox {
         const speak_text = Cast.toString(args.TEXT)
         const speaker = Cast.toNumber(args.SPEAKER)
         const style = Cast.toNumber(args.STYLE)
-        voice_array = await this.GetVoice(speak_text, style, speaker)
+        const voice_array = await this.GetVoice(speak_text, style, speaker)
         voice_data_base64 = arrayBufferToBase64(voice_array)
-        console.log(voice_data_base64)
+        // console.log(voice_data_base64)
         return voice_data_base64
+        // return voice_array
     }
 
     _getState (target) {
@@ -180,14 +195,35 @@ class Scratch3VoiceVox {
         }));
     }
 
-    async speak_character(args){
-        const speak_text = Cast.toString(args.TEXT)
-        const speaker = Cast.toNumber(args.SPEAKER)
-        const style = Cast.toNumber(args.STYLE)
+    /*
+     * Get voice data from SERVER_HOST
+     * return data is ArrayBuffer
+     */
+    async GetVoice(text, style_id, speaker) {
+        const rpc = axios.create({ baseURL: SERVER_HOST , proxy: false });
 
-        // Get vice data
-        buffer = await this.GetVoice(speak_text, style, speaker)
+        const audio_query = await rpc.post('audio_query?text=' + encodeURI(text) + '&speaker=' + speaker);
 
+        const synthesis = await rpc.post("synthesis?style_id="+ style_id, JSON.stringify(audio_query.data), {
+            responseType: 'arraybuffer',
+            headers: {
+                "accept": "audio/wav",
+                "Content-Type": "application/json"
+            }
+        });
+        // return arraybuffer
+        const data = synthesis.data
+        // console.log(data)
+        return data
+    }
+
+    /*
+     * Play sound data(data-type:arraybuffer)
+     */
+    async _play_voice(buffer){
+        /*
+         *@type(buffer): ArrayBuffer
+         */
         const sound = {
             data: {
                 buffer
@@ -214,21 +250,35 @@ class Scratch3VoiceVox {
     }
 
 
+    /*
+     * Get & Play sound data(data-type:arraybuffer)
+     */
+    async speak_character(args){
+        const speak_text = Cast.toString(args.TEXT)
+        const speaker = Cast.toNumber(args.SPEAKER)
+        const style = Cast.toNumber(args.STYLE)
 
-    async GetVoice(text, style_id, speaker) {
-        const rpc = axios.create({ baseURL: SERVER_HOST , proxy: false });
-
-        const audio_query = await rpc.post('audio_query?text=' + encodeURI(text) + '&speaker=' + speaker);
-
-        const synthesis = await rpc.post("synthesis?style_id="+ style_id, JSON.stringify(audio_query.data), {
-            responseType: 'arraybuffer',
-            headers: {
-                "accept": "audio/wav",
-                "Content-Type": "application/json"
-            }
-        });
-        // return arraybuffer
-        return synthesis.data
+        // Get vice data
+        const buffer = await this.GetVoice(speak_text, style, speaker)
+        // play voice
+        await this._play_voice(buffer)
     }
+
+    /*
+     * Play sound data(data-type:base64)
+     */
+    async play_voice(args){
+        // console.log(args.SOURCE)
+        // const base64_binary = Cast.toString(args.SOURCE)
+        const base64_binary = args.SOURCE
+
+        // convert base64 to arraybuffer
+        const Base2array = new Base64toArrayBuffer // const buffer = array_buffer
+        const buffer = Base2array.Convertbase64(base64_binary)
+        await this._play_voice(buffer)
+    }
+
+
+
 }
 module.exports = Scratch3VoiceVox;
