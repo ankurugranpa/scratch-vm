@@ -153,9 +153,13 @@ class Scratch3VoiceVox {
         const speaker = Cast.toNumber(args.SPEAKER)
         const style = Cast.toNumber(args.STYLE)
         const voice_array = await this.GetVoice(speak_text, style, speaker)
-        voice_data_base64 = arrayBufferToBase64(voice_array)
+        const voice_data_base64 = arrayBufferToBase64(voice_array)
         // console.log(voice_data_base64)
-        return voice_data_base64
+        const data_list = {
+            data: voice_data_base64,
+            type: "music"
+        }
+        return data_list
         // return voice_array
     }
 
@@ -270,12 +274,18 @@ class Scratch3VoiceVox {
     async play_voice(args){
         // console.log(args.SOURCE)
         // const base64_binary = Cast.toString(args.SOURCE)
-        const base64_binary = args.SOURCE
+        const data_list =  args.SOURCE
+        if(data_list.type === "music"){
+            const base64_binary = data_list.data
 
-        // convert base64 to arraybuffer
-        const Base2array = new Base64toArrayBuffer // const buffer = array_buffer
-        const buffer = Base2array.Convertbase64(base64_binary)
-        await this._play_voice(buffer)
+            // convert base64 to arraybuffer
+            const Base2array = new Base64toArrayBuffer // const buffer = array_buffer
+            const buffer = Base2array.Convertbase64(base64_binary)
+            await this._play_voice(buffer)
+        }
+        else{
+            return "音声データを引数にしてください"
+        }
     }
 
 
