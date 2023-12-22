@@ -3,6 +3,7 @@ const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const log = require('../../util/log');
 const axios = require('axios');
+const api_url = require('../../util/original-util/env');
 
 var test_message = null
 
@@ -61,7 +62,7 @@ class Scratch3Line {
             message: Cast.toString(args.MESSGAGE),
             user_id: Cast.toString(args.USERID)
         };
-        axios.post(' https://jaguar-curious-conversely.ngrok-free.app/send_line/', message)
+        axios.post(api_url.BASE_API_URL + '/send_line', message)
             .then(response => {
                 log.log(response);
             });
@@ -102,7 +103,8 @@ class Scratch3Line {
         const data = {
             user_id: user_id
         };
-        const response = await axios.post('https://874e-216-171-126-102.ngrok-free.app/line-db/get', data, {
+        // const response = await axios.post('https://4a82-133-106-35-39.ngrok-free.app/line-db/get', data, {
+        const response = await axios.post(api_url.DB_API_URL + '/line-db/get', data, {
             headers: {
                 'accept': 'application/json',
                 'Content-Type': 'application/json'
