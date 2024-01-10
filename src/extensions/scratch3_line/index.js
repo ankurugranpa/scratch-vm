@@ -4,6 +4,7 @@ const Cast = require('../../util/cast');
 const log = require('../../util/log');
 const axios = require('axios');
 const api_url = require('../../util/original-util/env');
+const Timer = require('../../util/timer');
 
 var test_message = null
 
@@ -20,7 +21,7 @@ class Scratch3Line {
                 {
                     opcode: 'send_line_message',
                     blockType: BlockType.COMMAND,
-                    text: 'SEND_LINE[MESSGAGE][USERID]',
+                    text: 'メッセージ送信[MESSGAGE][USERID]',
                     arguments: {
                         MESSGAGE: {
                             type: ArgumentType.STRING,
@@ -33,9 +34,80 @@ class Scratch3Line {
                     }
                 },
                 {
+                    opcode: 'send_audio_message',
+                    blockType: BlockType.COMMAND,
+                    text: '音声の送信[AUDIO_URL][TIME][USERID]',
+                    arguments: {
+                        AUDIO_URL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'https://ahahahaha.blob.core.windows.net/line-png-test/hare.mp3'
+                        },
+                        TIME: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1900
+                        },
+                        USERID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'USERID'
+                        }
+                    }
+                },
+                {
+                    opcode: 'send_image_message',
+                    blockType: BlockType.COMMAND,
+                    text: '画像の送信[IMAGE_URL][PRE_IMAGE_URL][USERID]',
+                    arguments: {
+                        USERID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'USERID'
+                        },
+                        IMAGE_URL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'https://ahahahaha.blob.core.windows.net/line-png-test/zennketugou2.png'
+                        },
+                        PRE_IMAGE_URL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'https://ahahahaha.blob.core.windows.net/line-png-test/zennketugou2.png'
+                        },
+                    }
+                },
+                {
+                    opcode: 'send_video_message',
+                    blockType: BlockType.COMMAND,
+                    text: '動画の送信[VIDEO_URL][PRE_VIDEO_URL][USERID]',
+                    arguments: {
+                        USERID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'USERID'
+                        },
+                        VIDEO_URL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'https://ahahahaha.blob.core.windows.net/line-png-test/scratch-test.mp4'
+                        },
+                        PRE_VIDEO_URL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'https://ahahahaha.blob.core.windows.net/line-png-test/scratch-test.jpg'
+                        }
+                    }
+                },
+                {
                     opcode: 'get_message',
                     blockType: BlockType.BOOLEAN,
                     text: 'GetMessage[USERID]',
+                    arguments: {
+                        USERID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'メッセージを受け取りたいユーザーのidを入力してください'
+                        },
+                        MESSAGE:{
+                            type: ArgumentType.STRING,
+                        }
+                    }
+                },
+                {
+                    opcode: 'get_wait_message',
+                    blockType: BlockType.COMMAND,
+                    text: 'メッセージを待つ[USERID]',
                     arguments: {
                         USERID: {
                             type: ArgumentType.STRING,
@@ -62,7 +134,43 @@ class Scratch3Line {
             message: Cast.toString(args.MESSGAGE),
             user_id: Cast.toString(args.USERID)
         };
-        axios.post(api_url.BASE_API_URL + '/send_line', message)
+        axios.post(api_url.BASE_API_URL + '/line/text', message)
+            .then(response => {
+                log.log(response);
+            });
+    }
+
+    send_audio_message(args){
+        const message = {
+              "user_id": Cast.toString(args.USERID),
+              "audio_url": Cast.toString(args.AUDIO_URL),
+              "duration": 1900
+        };
+        axios.post(api_url.BASE_API_URL + '/line/audio', message)
+            .then(response => {
+                log.log(response);
+            });
+    }
+
+    send_image_message(args){
+        const message = {
+              "user_id": Cast.toString(args.USERID),
+              "image_url": Cast.toString(args.IMAGE_URL),
+              "preview_image_url": Cast.toString(args.PRE_IMAGE_URL)
+        };
+        axios.post(api_url.BASE_API_URL + '/line/image', message)
+            .then(response => {
+                log.log(response);
+            });
+    }
+
+    send_video_message(args){
+        const message = {
+              "user_id": Cast.toString(args.USERID),
+              "video_url": Cast.toString(args.VIDEO_URL) ,
+              "preview_video_url": Cast.toString(args.PRE_VIDEO_URL)
+        };
+        axios.post(api_url.BASE_API_URL + '/line/video', message)
             .then(response => {
                 log.log(response);
             });
@@ -85,6 +193,18 @@ class Scratch3Line {
         return test_message
     }
 
+    async get_wait_message(args) {
+        const message = await this.get_message_post(Cast.toString(args.USERID))
+        // log.log(message.message)
+        if (message.length === 0) {
+            await this.get_wait_message(args)
+        }
+        else {
+            for (let i = 0; i < message.length; i++){
+                test_message = message[i].message
+            }
+        }
+    }
     async get_message(args) {
         const message = await this.get_message_post(Cast.toString(args.USERID))
         // log.log(message.message)

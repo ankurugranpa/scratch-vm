@@ -12,9 +12,10 @@ const { arrayBufferToBase64, base64ToUint8Array } = require('../../util/base64-u
 const Base64Util = require('../../util/base64-util');
 const Base64toArrayBuffer = require('../../util/original-util/base64-2-bufarray');
 const { buffer } = require('js-md5');
+const api_url = require('../../util/original-util/env');
 
 
-const SERVER_HOST = "http://localhost:50021";
+const SERVER_HOST = api_url.VOICE_VOX_URL;
 const SERVER_TIMEOUT = 10000; // 10 seconds
 const SPEECH_VOLUME = 20
 const ALTO_ID = 'ALTO';
@@ -78,22 +79,22 @@ class Scratch3VoiceVox {
                         },
                     }
                 },
-                {
-                    opcode: 'setVoice',
-                    text: formatMessage({
-                        id: 'text2speech.setVoiceBlock',
-                        default: 'set voice to [VOICE]',
-                        description: 'Set the voice for speech synthesis.'
-                    }),
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        VOICE: {
-                            type: ArgumentType.STRING,
-                            menu: 'voices',
-                            defaultValue: ALTO_ID
-                        }
-                    }
-                },
+//                {
+//                    opcode: 'setVoice',
+//                    text: formatMessage({
+//                        id: 'text2speech.setVoiceBlock',
+//                        default: 'set voice to [VOICE]',
+//                        description: 'Set the voice for speech synthesis.'
+//                    }),
+//                    blockType: BlockType.COMMAND,
+//                    arguments: {
+//                        VOICE: {
+//                            type: ArgumentType.STRING,
+//                            menu: 'voices',
+//                            defaultValue: ALTO_ID
+//                        }
+//                    }
+//                },
                 {
                     opcode: 'voice_data',
                     blockType: BlockType.REPORTER,
