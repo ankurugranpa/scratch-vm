@@ -3,6 +3,9 @@ const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const log = require('../../util/log');
 const axios = require('axios');
+const api_url = require('../../util/original-util/env');
+
+const SERVER_HOST = api_url.GPT_URL;
 
 class Scratch3ChatGpt {
     constructor (runtime) {
@@ -69,7 +72,8 @@ class Scratch3ChatGpt {
         //     prompt: "あなたは賢い",
         //     lang: 'ea'
         // };
-        const response =  await axios.post('http://localhost:8000/gpt_ask', data, {
+        // const response =  await axios.post('http://localhost:8000/gpt_ask', data, {
+        const response =  await axios.post('${SERVER_HOST}/gpt_ask', data, {
         headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
