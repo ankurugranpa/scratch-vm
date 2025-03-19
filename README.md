@@ -1,5 +1,7 @@
 ## scratch-vm
 [scratch-vm](https://github.com/scratchfoundation/scratch-vm)を一部改造したもの.
+`scratch-dev/scratch/scratch-vm/src/util/original-util/env.js`にてapi回りのurlの設定をする必要がある.
+
 
 
 #### Scratch VM is a library for representing, running, and maintaining the state of computer programs written using [Scratch Blocks](https://github.com/LLK/scratch-blocks).
